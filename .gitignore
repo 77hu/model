@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+.env
+*.key
+*.zip
+*.sql
+*.pkl
+*.bin
