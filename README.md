@@ -1,162 +1,123 @@
-# model
-上市公司ST/退市预测机器学习流水线，基于多算法对比和分组建模的金融预测系统。  
-本项目针对中国上市公司财务困境预测场景，使用39,440条记录（5,151家公司，2012-2023年），通过4种算法（LR/RF/XGBoost/GA-优化决策树）在2个粒度层级（全局vs分组）上进行exhaustive对比实验。按行业/规模/产业链/公司年龄四维分组建模，产出100+结果文件。  
-项目实现了从数据处理到模型训练、阈值优化、特征重要性分析的完整管线。
+<div align="center">
 
-# 时间表
-#### 2025.12.05
-完成数据清洗和merged_clean_data.csv构建  
-#### 2025.12.06
-完成Logistic Regression全局模型开发（step4_lr.py）  
-#### 2025.12.07
-完成Random Forest全局模型开发（step5_rf.py）  
-#### 2025.12.08
-完成XGBoost全局模型开发（step6_xgb.py）  
-#### 2025.12.09
-完成GA-优化决策树开发（step7_ga_tree.py），集成GASearchCV  
-#### 2025.12.10
-完成四维分组建模脚本开发（_grouped.py系列）  
-#### 2025.12.12
-完成批量训练，产出100+结果文件  
-#### 2025.12.14
-完成结果分析和特征重要性统计
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.0+-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![XGBoost](https://img.shields.io/badge/XGBoost-2.0+-3498DB?style=for-the-badge&logo=python&logoColor=white)](https://xgboost.readthedocs.io/)
+[![Genetic Algorithm](https://img.shields.io/badge/GA-Evolutionary-9B59B6?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/geneticalgorithm/)
 
-# 目录
-<a href="#1-项目介绍">1 项目介绍</a>  
-- <a href="#关于st退市预测">1.1 关于ST/退市预测</a>  
-- <a href="#目录结构">1.2 目录结构</a>  
-- <a href="#依赖">1.3 依赖</a>  
-- <a href="#模型对比">1.4 模型对比</a>  
+</div>
 
-<a href="#如何使用">2 如何使用</a>  
-- <a href="#安装依赖">2.1 安装依赖</a>  
-- <a href="#全局模型训练">2.2 全局模型训练</a>  
-- <a href="#分组建模">2.3 分组建模</a>  
-- <a href="#查看结果">2.4 查看结果</a>  
+<br/>
 
-<a href="#统计数据">3 统计数据</a>  
-- <a href="#训练数据统计">3.1 训练数据统计</a>  
+<h1 align="center">🧠 机器学习模型训练管线</h1>
 
-<a href="#开发说明">4 开发说明</a>  
+<h3 align="center"><em>LR → RF → XGBoost → 遗传算法特征优化 · 多模型对比实验</em></h3>
 
-<a href="#已知问题">5 已知问题</a>  
+<br/>
 
+---
 
-# 1 项目介绍
-## 1.1 关于ST/退市预测
-中国A股市场对财务状况异常的上市公司实施ST（Special Treatment）特别处理，预测公司未来是否会被ST或退市对投资决策和风险控制具有重要价值。
+## 📑 目录
 
-目前常见的方法对比：
+- [📖 项目概述](#-项目概述)
+- [🧩 模型管线](#-模型管线)
+- [📊 模型对比](#-模型对比)
+- [🚀 快速开始](#-快速开始)
+- [📁 项目结构](#-项目结构)
 
-| 方法名称 | 相关要点 |
-| ------ | ------ |
-| 单一模型全局训练 | 忽略行业/规模差异，异质性公司共用同一模型 |
-| 传统统计方法 | 可解释性强但对非线性关系建模能力弱 |
-| 分组建模 | 本项目采用的方案，按行业/规模/产业链/年龄分组，独立训练 |
-| 深度学习 | 适合大规模数据但可解释性差 |
+---
 
-本项目使用**4种算法 × 2个粒度层级 × 4个分组维度**的系统性实验设计：
+## 📖 项目概述
 
-| 算法 | 全局/分组 | 分组维度 |
-| ------ | ------ | ------ |
-| Logistic Regression | 全局 + 分组 | 行业(11类) / 规模(SML) / 产业链(上中下) / 年龄(青中老年) |
-| Random Forest (500 trees) | 全局 + 分组 | 同上 |
-| XGBoost (scale_pos_weight) | 全局 + 分组 | 同上 |
-| GA-优化决策树 | 全局 + 分组 | 同上 |
+循序渐进的机器学习模型训练实验项目，从简单线性模型到复杂集成学习再到进化算法特征工程，全面探索模型性能提升路径。
 
-## 1.2 目录结构
-### 1.2.1 全局模型
-| 序号 | 文件名称 | 说明 |
-| ------ | ------ | ------ |
-| 1 | `merged_clean_data.csv` | 清洗后的主数据集（39,440×33） |
-| 2 | `step4_lr.py` | LR模型（全局） |
-| 3 | `step5_rf.py` | RF模型（全局） |
-| 4 | `step6_xgb.py` | XGBoost模型（全局） |
-| 5 | `step7_ga_tree.py` | GA-Tree模型（全局） |
-| 6 | `lr_results/` | LR全局结果目录 |
+### 训练策略
 
-### 1.2.2 分组模型
-| 序号 | 文件名称 | 说明 |
-| ------ | ------ | ------ |
-| 1 | `model/model/step4_lr_grouped.py` | 分组LR |
-| 2 | `model/model/step5_rf_grouped.py` | 分组RF |
-| 3 | `model/model/step6_xgb_grouped.py` | 分组XGB |
-| 4 | `model/model/step7_ga_tree_grouped.py` | 分组GA-Tree |
-| 5 | `lr_results_grouped/` | 分组LR结果 |
-| 6 | `rf_results_grouped/` | 分组RF结果 |
-| 7 | `xgb_results_grouped/` | 分组XGB结果 |
-| 8 | `ga_tree_results_grouped/` | 分组GA-Tree结果 |
+| 阶段 | 模型 | 目标 |
+|------|------|------|
+| Step 4 | Logistic Regression | 建立 Baseline |
+| Step 5 | Random Forest | 集成学习提升 |
+| Step 6 | XGBoost | 梯度提升优化 |
+| Step 7 | Genetic Algorithm + Tree | 进化特征选择 |
 
-### 1.2.3 分组子目录结构
+---
+
+## 🧩 模型管线
+
 ```
-ga_tree_results_grouped/
-├── age/          (young / middle / old)
-├── chain/        (downstream / midstream / upstream)
-├── industry/     (A_农林牧渔 / B_采矿业 / C_制造业 / D_电力水气 / ...)
-└── size/         (small / medium / large)
-```
-每个子组包含：`best_params.json` + `feature_importance.csv` + `test_pred.csv` + `threshold_search.csv` + `tree_top3.png`
-
-## 1.3 依赖
-```
-pip install pandas numpy scikit-learn xgboost sklearn-genetic-opt matplotlib
+┌──────────────────────┐
+│  数据预处理           │
+│  merged_clean_data   │
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│  Step 4: LR          │  线性 Baseline
+│  step4_lr.py         │
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│  Step 5: Random      │  集成树模型
+│  Forest              │
+│  step5_rf.py         │
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│  Step 6: XGBoost     │  梯度提升
+│  step6_xgb.py        │
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│  Step 7: GA Tree     │  遗传算法
+│  step7_ga_tree.py    │  特征优化
+└──────────────────────┘
 ```
 
-## 1.4 模型对比
-| 算法 | 关键配置 | 预处理 |
-| ------ | ------ | ------ |
-| Logistic Regression | class_weight="balanced", liblinear, max_iter=5000 | 中位数填充 + StandardScaler + OHE |
-| Random Forest | n_estimators=500, min_samples_split=10 | 中位数填充 + OHE |
-| XGBoost | n_estimators=500, max_depth=4, lr=0.05, scale_pos_weight动态计算 | 中位数填充 + 稀疏OHE |
-| GA-Tree | GASearchCV(pop=20, gen=15, cv=3, scoring=f1) | 同RF |
+---
 
-# 2 如何使用
-## 2.1 安装依赖
+## 📊 模型对比
+
+| 模型 | 复杂度 | 训练速度 | 准确率 | 可解释性 |
+|------|--------|---------|--------|----------|
+| Logistic Regression | 低 | ⚡⚡⚡⚡⚡ | ★★☆☆☆ | ★★★★★ |
+| Random Forest | 中 | ⚡⚡⚡⚡ | ★★★★☆ | ★★★☆☆ |
+| XGBoost | 中高 | ⚡⚡⚡ | ★★★★★ | ★★☆☆☆ |
+| GA + Tree | 高 | ⚡⚡ | ★★★★★ | ★★☆☆☆ |
+
+---
+
+## 🚀 快速开始
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/77hu/model.git
+cd model
+
+# 2. 安装依赖
+pip install scikit-learn xgboost numpy pandas
+
+# 3. 按顺序运行
+python step4_lr.py      # Logistic Regression
+python step5_rf.py      # Random Forest
+python step6_xgb.py     # XGBoost
+python step7_ga_tree.py # GA Tree
 ```
-pip install pandas numpy scikit-learn xgboost sklearn-genetic-opt matplotlib
+
+---
+
+## 📁 项目结构
+
+```
+📦 model/
+├── 📜 step4_lr.py              # Logistic Regression 训练
+├── 📜 step5_rf.py              # Random Forest 训练
+├── 📜 step6_xgb.py             # XGBoost 训练
+├── 📜 step7_ga_tree.py         # 遗传算法 + 决策树
+├── 📄 merged_clean_data.csv    # 预处理后的数据集
+└── 📘 README.md                # 本文档
 ```
 
-## 2.2 全局模型训练
-```
-python step4_lr.py    # Logistic Regression
-python step5_rf.py    # Random Forest
-python step6_xgb.py   # XGBoost
-python step7_ga_tree.py  # GA-优化决策树
-```
+---
 
-## 2.3 分组建模
-```
-cd model/model
-python step4_lr_grouped.py
-python step5_rf_grouped.py
-python step6_xgb_grouped.py
-python step7_ga_tree_grouped.py
-```
+## 📄 License
 
-## 2.4 查看结果
-- 全局结果：`lr_results/`目录
-- 分组结果：`*_results_grouped/`目录（按行业/规模/产业链/年龄分组）
-
-# 3 统计数据
-## 3.1 训练数据统计
-| 项目 | 数值 |
-| ------ | ------ |
-| 样本数 | 39,440行 |
-| 公司数 | 5,151家 |
-| 时间跨度 | 2012-2023年 |
-| 特征数 | 19个（18数值 + 1分类） |
-| 正例率 | 0.79%（312/39,440，极度不平衡） |
-| 全局模型数 | 4个（LR/RF/XGB/GA-Tree） |
-| 分组模型数 | 100+个（4维度 × 分组 × 4算法） |
-| 输出文件 | 100+个（CSV + JSON + PNG） |
-
-# 4 开发说明
-- 时间划分：train≤2020 / valid=2021 / test≥2022（严格时序防泄漏）
-- 阈值优化：0.05-0.95搜索，以F1为目标（默认0.5在不平衡数据上效果差）
-- 跳过逻辑：组内训练样本<30或单类别组自动跳过
-- 小行业合并：<300样本或<5正例的行业合并为"其他小行业"
-
-# 5 已知问题
-1. 极度不平衡数据（0.79%正例率），需要class_weight/scale_pos_weight处理
-2. GA-Tree训练时间较长（pop=20, gen=15, cv=3）
-3. 部分小组样本不足，模型可能不稳定
+本项目仅供学习和研究使用。
